@@ -10,17 +10,14 @@ export const handler: Handlers = {
       const supabase = createClient(supabaseUrl, supabaseAnonPublic);
       const body = await _req.json();
 
-      // Join a room/topic. Can be anything except for 'realtime'.
-      const channelB = supabase.channel(body.room);
+      const channel = supabase.channel(body.room);
 
-      channelB.subscribe((status) => {
-        // Wait for successful connection
+      channel.subscribe((status) => {
         if (status !== "SUBSCRIBED") {
           return null;
         }
 
-        // Send a message once the client is subscribed
-        channelB.send({
+        channel.send({
           type: "broadcast",
           event: "message",
           payload: { message: body.message },
