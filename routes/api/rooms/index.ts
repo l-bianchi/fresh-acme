@@ -11,10 +11,11 @@ export const handler: Handlers = {
       const body = await _req.json();
 
       const words = ["dog", "cat"];
+      const prompt = words[0];
 
       const { error, statusText } = await supabase
         .from("rooms")
-        .upsert({ id: body.id, prompt: words[0] });
+        .upsert({ id: body.id, prompt });
 
       if (error) {
         return new Response(error.message);
@@ -30,7 +31,7 @@ export const handler: Handlers = {
               "Authorization": `Bearer ${supabaseAnonPublic}`,
             },
             body: JSON.stringify({
-              prompt: "dog",
+              prompt,
               path: body.id,
             }),
           },
