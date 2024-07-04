@@ -29,6 +29,6 @@ jobs:
       - name: Upload to Deno Deploy
         uses: denoland/deployctl@v1
         with:
-          project: "l-bianchi-fresh-acme-39"
+          project: "fresh-acme"
           entrypoint: "main.ts"
           root: "."
