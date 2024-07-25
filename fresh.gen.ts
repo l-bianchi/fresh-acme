@@ -5,10 +5,13 @@
 import * as $_room_ from "./routes/[room].tsx";
 import * as $_404 from "./routes/_404.tsx";
 import * as $_app from "./routes/_app.tsx";
+import * as $api_joinRoom from "./routes/api/joinRoom.ts";
 import * as $api_rooms_index from "./routes/api/rooms/index.ts";
 import * as $api_sendMessage from "./routes/api/sendMessage.ts";
 import * as $index from "./routes/index.tsx";
 import * as $Clipboard from "./islands/Clipboard.tsx";
+import * as $Lobby from "./islands/Lobby.tsx";
+import * as $Share from "./islands/Share.tsx";
 import { type Manifest } from "$fresh/server.ts";
 
 const manifest = {
@@ -16,12 +19,15 @@ const manifest = {
     "./routes/[room].tsx": $_room_,
     "./routes/_404.tsx": $_404,
     "./routes/_app.tsx": $_app,
+    "./routes/api/joinRoom.ts": $api_joinRoom,
     "./routes/api/rooms/index.ts": $api_rooms_index,
     "./routes/api/sendMessage.ts": $api_sendMessage,
     "./routes/index.tsx": $index,
   },
   islands: {
     "./islands/Clipboard.tsx": $Clipboard,
+    "./islands/Lobby.tsx": $Lobby,
+    "./islands/Share.tsx": $Share,
   },
   baseUrl: import.meta.url,
 } satisfies Manifest;

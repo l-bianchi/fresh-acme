@@ -10,8 +10,10 @@ export const handler: Handlers = {
       const supabase = createClient(supabaseUrl, supabaseAnonPublic);
       const body = await _req.json();
 
-      const words = ["dog", "cat"];
-      const prompt = words[0];
+      const words = ["dog", "cat", "lion", "tiger", "penguin", "bird", "horse"];
+      const prompt = `Create a pencil drawing of a ${
+        words[Math.floor(Math.random() * words.length)]
+      }, bad drawings, shaky hands, low quality, minimal, abstract.`;
 
       const { error, statusText } = await supabase
         .from("rooms")
@@ -21,22 +23,22 @@ export const handler: Handlers = {
         return new Response(error.message);
       }
 
-      if (statusText === "Created") {
-        await fetch(
-          `${supabaseUrl}/functions/v1/${"text-to-image"}`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "Authorization": `Bearer ${supabaseAnonPublic}`,
-            },
-            body: JSON.stringify({
-              prompt,
-              path: body.id,
-            }),
-          },
-        );
-      }
+      // if (statusText === "Created") {
+      //   await fetch(
+      //     `${supabaseUrl}/functions/v1/${"text-to-image"}`,
+      //     {
+      //       method: "POST",
+      //       headers: {
+      //         "Content-Type": "application/json",
+      //         "Authorization": `Bearer ${supabaseAnonPublic}`,
+      //       },
+      //       body: JSON.stringify({
+      //         prompt,
+      //         path: body.id,
+      //       }),
+      //     },
+      //   );
+      // }
 
       return new Response(JSON.stringify("ok"));
     }
