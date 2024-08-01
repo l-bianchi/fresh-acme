@@ -9,7 +9,7 @@ export const handler: Handlers = {
     if (supabaseUrl && supabaseAnonPublic) {
       const supabase = createClient(supabaseUrl, supabaseAnonPublic);
       const body = await _req.json();
-      const { room, message, user } = body;
+      const { room } = body;
 
       const { data, error } = await supabase
         .from("rooms")
@@ -20,26 +20,20 @@ export const handler: Handlers = {
         return new Response(error.message);
       }
 
-      const channel = supabase.channel(room);
+      const prompt = `Create a pencil drawing of a ${
+        data[0].prompt
+      }, bad drawings, shaky hands, low quality, minimal, abstract.`;
 
-      channel.subscribe((status) => {
-        if (status !== "SUBSCRIBED") {
-          return null;
-        }
-
-        if (data[0].prompt === message) {
-          channel.send({
-            type: "broadcast",
-            event: "winner",
-            payload: { room, message, user },
-          });
-        } else {
-          channel.send({
-            type: "broadcast",
-            event: "guess",
-            payload: { room, message, user },
-          });
-        }
+      await fetch(`${supabaseUrl}/functions/v1/${"text-to-image"}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${supabaseAnonPublic}`,
+        },
+        body: JSON.stringify({
+          prompt,
+          path: room,
+        }),
       });
 
       return new Response(JSON.stringify("ok"));

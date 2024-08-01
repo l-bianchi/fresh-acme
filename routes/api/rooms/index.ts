@@ -11,9 +11,10 @@ export const handler: Handlers = {
       const body = await _req.json();
 
       const words = ["dog", "cat", "lion", "tiger", "penguin", "bird", "horse"];
-      const prompt = `Create a pencil drawing of a ${
-        words[Math.floor(Math.random() * words.length)]
-      }, bad drawings, shaky hands, low quality, minimal, abstract.`;
+      const prompt = words[Math.floor(Math.random() * words.length)];
+      // const prompt = `Create a pencil drawing of a ${
+      //   words[Math.floor(Math.random() * words.length)]
+      // }, bad drawings, shaky hands, low quality, minimal, abstract.`;
 
       const { error, statusText } = await supabase
         .from("rooms")
