@@ -1,7 +1,13 @@
 import { useEffect, useState } from "preact/hooks";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.43.4";
 import { UserCard } from "../components/UserCard.tsx";
-import { setGameStarted, state } from "../stores/game.ts";
+import {
+  addUser,
+  removeUser,
+  setGameStarted,
+  setTime,
+  state,
+} from "../stores/game.ts";
 
 interface LobbyProps {
   url: string;
@@ -11,12 +17,11 @@ interface LobbyProps {
 
 export default function Lobby({ url, anon, room }: LobbyProps) {
   const [user, _setUser] = useState(crypto.randomUUID());
-  const [users, setUsers] = useState<string[]>([]);
   const [message, setMessage] = useState<string>("");
   const [messages, setMessages] = useState<
     { user: string; message: string; type: "guess" | "winner" }[]
   >([]);
-  const { gameStarted } = state();
+  const { gameStarted, time, users } = state();
 
   const borderDict = {
     guess: "border-mocha-yellow",
@@ -70,18 +75,21 @@ export default function Lobby({ url, anon, room }: LobbyProps) {
     channel
       .on("presence", { event: "join" }, ({ key, newPresences }) => {
         console.log("join", key, newPresences);
-        setUsers((prevUsers) => [...prevUsers, newPresences[0].user]);
-        console.log(users);
+        if (newPresences[0].user) {
+          addUser(newPresences[0].user);
+        }
       })
       .on("presence", { event: "leave" }, ({ key, leftPresences }) => {
         console.log("leave", key, leftPresences);
-        setUsers((prevUsers) =>
-          prevUsers.filter((u) => u !== leftPresences[0].user)
-        );
+        removeUser(leftPresences[0].user);
       })
       .on("broadcast", { event: "start" }, () => {
         console.log("start");
         setGameStarted(true);
+      })
+      .on("broadcast", { event: "timer" }, ({ payload }) => {
+        setTime(payload.time);
+        console.log("timer", payload.time);
       })
       .on("broadcast", { event: "guess" }, ({ payload }) => {
         console.log("guess", payload);
@@ -97,6 +105,10 @@ export default function Lobby({ url, anon, room }: LobbyProps) {
           { user: payload.user, message: "Indovinato", type: "winner" },
         ]);
       })
+      .on("broadcast", { event: "end" }, () => {
+        setGameStarted(false);
+        console.log("Game stopped");
+      })
       .subscribe();
 
     return () => {
@@ -109,6 +121,9 @@ export default function Lobby({ url, anon, room }: LobbyProps) {
       {gameStarted
         ? (
           <div class="flex flex-col size-full gap-2">
+            <div class="w-full font-bold text-mocha-text bg-mocha-base p-4 rounded focus:outline-none">
+              Timer: {time}
+            </div>
             <div class="flex size-full flex-col bg-mocha-base p-2 gap-2 overflow-y-auto">
               {messages.map(({ user, message, type }) => (
                 <div

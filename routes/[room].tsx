@@ -11,7 +11,7 @@ export default function Room({ params }: PageProps) {
   return (
     <div class="flex size-full gap-8 p-8">
       <div class="w-2/3 p-8 border-2 rounded border-mocha-surface0 bg-mocha-crust">
-        <Game url={supabaseUrl} room={room} />
+        <Game room={room} />
       </div>
       <div class="w-1/3 p-8 border-2 rounded border-mocha-surface0 bg-mocha-crust">
         <Lobby url={supabaseUrl} anon={supabaseAnon} room={room} />

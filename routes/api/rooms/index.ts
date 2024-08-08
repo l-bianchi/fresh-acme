@@ -9,16 +9,68 @@ export const handler: Handlers = {
     if (supabaseUrl && supabaseAnonPublic) {
       const supabase = createClient(supabaseUrl, supabaseAnonPublic);
       const body = await _req.json();
+      const { id } = body;
 
       const words = ["dog", "cat", "lion", "tiger", "penguin", "bird", "horse"];
       const prompt = words[Math.floor(Math.random() * words.length)];
 
-      const { error } = await supabase
+      const { error, statusText } = await supabase
         .from("rooms")
-        .upsert({ id: body.id, prompt });
+        .upsert({ id, prompt });
 
       if (error) {
         return new Response(error.message);
+      }
+
+      const updateResult = async (user: string, time: number) => {
+        await supabase
+          .from("rooms")
+          .update({
+            results: {
+              [user]: time,
+            },
+          })
+          .eq("id", id);
+      };
+
+      if (statusText === "Created") {
+        const channel = supabase.channel(id);
+
+        channel.subscribe(async (status) => {
+          if (status !== "SUBSCRIBED") {
+            return null;
+          }
+
+          await channel.track({});
+        });
+
+        let time = 30;
+
+        channel
+          .on("broadcast", { event: "winner" }, ({ payload }) => {
+            console.log("winner", payload.user, time);
+            updateResult(payload.user, time);
+          })
+          .on("broadcast", { event: "start" }, () => {
+            function timer(timeLeft: number) {
+              if (timeLeft > 0) {
+                channel.send({
+                  type: "broadcast",
+                  event: "timer",
+                  payload: { time },
+                });
+                time--;
+                setTimeout(() => timer(time), 1000);
+              } else {
+                channel.send({
+                  type: "broadcast",
+                  event: "end",
+                });
+              }
+            }
+
+            timer(time);
+          });
       }
 
       return new Response(JSON.stringify("ok"));

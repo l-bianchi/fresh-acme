@@ -6,8 +6,10 @@ import * as $_room_ from "./routes/[room].tsx";
 import * as $_404 from "./routes/_404.tsx";
 import * as $_app from "./routes/_app.tsx";
 import * as $api_guess from "./routes/api/guess.ts";
+import * as $api_rooms_id_ from "./routes/api/rooms/[id].ts";
 import * as $api_rooms_index from "./routes/api/rooms/index.ts";
 import * as $api_sendMessage from "./routes/api/sendMessage.ts";
+import * as $api_supabase_blurImage from "./routes/api/supabase/blurImage.ts";
 import * as $api_supabase_textToImage from "./routes/api/supabase/textToImage.ts";
 import * as $index from "./routes/index.tsx";
 import * as $Clipboard from "./islands/Clipboard.tsx";
@@ -22,8 +24,10 @@ const manifest = {
     "./routes/_404.tsx": $_404,
     "./routes/_app.tsx": $_app,
     "./routes/api/guess.ts": $api_guess,
+    "./routes/api/rooms/[id].ts": $api_rooms_id_,
     "./routes/api/rooms/index.ts": $api_rooms_index,
     "./routes/api/sendMessage.ts": $api_sendMessage,
+    "./routes/api/supabase/blurImage.ts": $api_supabase_blurImage,
     "./routes/api/supabase/textToImage.ts": $api_supabase_textToImage,
     "./routes/index.tsx": $index,
   },

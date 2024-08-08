@@ -1,25 +1,27 @@
-import { useEffect } from "preact/hooks";
+import { useEffect, useState } from "preact/hooks";
 import Share from "./Share.tsx";
 import { Button } from "../components/Button.tsx";
 import { state } from "../stores/game.ts";
 
 interface GameProps {
   room: string;
-  url: string;
 }
 
-export default function Game({ room, url }: GameProps) {
-  const { gameStarted } = state();
-
-  const imageUrl = `${url}/storage/v1/object/public/images/${room}/image.png`;
+export default function Game({ room }: GameProps) {
+  const [imageUrl, setImageUrl] = useState<string>("");
+  const { gameStarted, time, users } = state();
 
   useEffect(() => {
-    // TODO: on mount
+    async function getImage() {
+      setImageUrl(await getSignedUrl());
+    }
+
+    getImage();
 
     return () => {
       // TODO: destroy
     };
-  }, []);
+  }, [time]);
 
   async function startGame() {
     const response = await fetch("/api/supabase/textToImage", {
@@ -33,6 +35,14 @@ export default function Game({ room, url }: GameProps) {
       throw new Error("Network response was not ok");
     }
 
+    await fetch(`/api/rooms/${room}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ users }),
+    });
+
     await fetch("/api/sendMessage", {
       method: "POST",
       headers: {
@@ -40,6 +50,22 @@ export default function Game({ room, url }: GameProps) {
       },
       body: JSON.stringify({ room, event: "start" }),
     });
+
+    setImageUrl(await getSignedUrl());
+  }
+
+  async function getSignedUrl() {
+    const response = await fetch("/api/supabase/blurImage", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ room, time }),
+    });
+    if (!response.ok) {
+      throw new Error("Network response was not ok");
+    }
+    return await response.json();
   }
 
   return (
@@ -48,7 +74,7 @@ export default function Game({ room, url }: GameProps) {
         ? (
           <div class="flex size-full items-center justify-center">
             <img
-              class="h-auto max-h-full max-w-full rounded aspect-square animate-pulse"
+              class="size-full rounded aspect-square"
               src={imageUrl}
               alt="generation preview"
             />
