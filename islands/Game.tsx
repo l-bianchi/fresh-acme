@@ -1,7 +1,7 @@
-import { useEffect, useState } from "preact/hooks";
+import { useEffect } from "preact/hooks";
 import Share from "./Share.tsx";
 import { Button } from "../components/Button.tsx";
-import { state, setGameStarted } from "../stores/game.ts";
+import { state } from "../stores/game.ts";
 
 interface GameProps {
   room: string;
@@ -32,25 +32,34 @@ export default function Game({ room, url }: GameProps) {
     if (!response.ok) {
       throw new Error("Network response was not ok");
     }
-    setGameStarted(true);
+
+    await fetch("/api/sendMessage", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ room, event: "start" }),
+    });
   }
 
   return (
     <div class="size-full">
-      {gameStarted ? (
-        <div class="flex size-full items-center justify-center">
-          <img
-            class="h-auto max-h-full max-w-full rounded aspect-square animate-pulse"
-            src={imageUrl}
-            alt="generation preview"
-          />
-        </div>
-      ) : (
-        <div class="flex flex-col gap-4 items-center justify-center">
-          <Share room={room} />
-          <Button onClick={startGame}>Start</Button>
-        </div>
-      )}
+      {gameStarted
+        ? (
+          <div class="flex size-full items-center justify-center">
+            <img
+              class="h-auto max-h-full max-w-full rounded aspect-square animate-pulse"
+              src={imageUrl}
+              alt="generation preview"
+            />
+          </div>
+        )
+        : (
+          <div class="flex flex-col gap-4 items-center justify-center">
+            <Share room={room} />
+            <Button onClick={startGame}>Start</Button>
+          </div>
+        )}
     </div>
   );
 }

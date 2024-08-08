@@ -12,34 +12,14 @@ export const handler: Handlers = {
 
       const words = ["dog", "cat", "lion", "tiger", "penguin", "bird", "horse"];
       const prompt = words[Math.floor(Math.random() * words.length)];
-      // const prompt = `Create a pencil drawing of a ${
-      //   words[Math.floor(Math.random() * words.length)]
-      // }, bad drawings, shaky hands, low quality, minimal, abstract.`;
 
-      const { error, statusText } = await supabase
+      const { error } = await supabase
         .from("rooms")
         .upsert({ id: body.id, prompt });
 
       if (error) {
         return new Response(error.message);
       }
-
-      // if (statusText === "Created") {
-      //   await fetch(
-      //     `${supabaseUrl}/functions/v1/${"text-to-image"}`,
-      //     {
-      //       method: "POST",
-      //       headers: {
-      //         "Content-Type": "application/json",
-      //         "Authorization": `Bearer ${supabaseAnonPublic}`,
-      //       },
-      //       body: JSON.stringify({
-      //         prompt,
-      //         path: body.id,
-      //       }),
-      //     },
-      //   );
-      // }
 
       return new Response(JSON.stringify("ok"));
     }

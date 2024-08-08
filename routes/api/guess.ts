@@ -9,7 +9,16 @@ export const handler: Handlers = {
     if (supabaseUrl && supabaseAnonPublic) {
       const supabase = createClient(supabaseUrl, supabaseAnonPublic);
       const body = await _req.json();
-      const { room, event } = body;
+      const { room, message, user } = body;
+
+      const { data, error } = await supabase
+        .from("rooms")
+        .select()
+        .eq("id", room);
+
+      if (error) {
+        return new Response(error.message);
+      }
 
       const channel = supabase.channel(room);
 
@@ -18,11 +27,19 @@ export const handler: Handlers = {
           return null;
         }
 
-        channel.send({
-          type: "broadcast",
-          event,
-          payload: { room },
-        });
+        if (data[0].prompt === message) {
+          channel.send({
+            type: "broadcast",
+            event: "winner",
+            payload: { room, message, user },
+          });
+        } else {
+          channel.send({
+            type: "broadcast",
+            event: "guess",
+            payload: { room, message, user },
+          });
+        }
       });
 
       return new Response(JSON.stringify("ok"));
