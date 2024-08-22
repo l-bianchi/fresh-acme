@@ -9,7 +9,7 @@ export default function App({ Component }: PageProps) {
         <title>fresh-acme</title>
         <link rel="stylesheet" href="/styles.css" />
       </head>
-      <body class="w-screen h-screen bg-mocha-base">
+      <body class="w-screen h-screen from-mocha-blue to-mocha-green bg-gradient-to-tr">
         <Component />
       </body>
     </html>

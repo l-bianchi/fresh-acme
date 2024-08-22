@@ -15,7 +15,7 @@ export default function Clipboard() {
         `https://fresh-acme.deno.dev/${room}`,
       );
       setCopied(true);
-      setTimeout(() => setCopied(false), 2000); // Reset the "copied" state after 2 seconds
+      setTimeout(() => setCopied(false), 2000);
     } catch (err) {
       console.error("Failed to copy: ", err);
     }
@@ -40,7 +40,7 @@ export default function Clipboard() {
     <div class="flex w-full max-w-fit gap-8">
       <div class="flex items-center">
         <button
-          class="flex-shrink-0 z-10 inline-flex items-center py-2.5 px-4 text-sm font-medium text-center text-mocha-base bg-mocha-mauve hover:bg-mocha-mauve/80 border border-mocha-mauve hover:border-mocha-mauve/80 rounded-s focus:ring-2 focus:ring-mocha-mauve focus:ring-offset-4 focus:ring-offset-mocha-base transition-colors"
+          class="flex-shrink-0 z-10 inline-flex items-center py-2.5 px-4 text-sm font-medium text-center text-mocha-base bg-gradient-to-tr hover:opacity-80 border border-mocha-overlay0 rounded-s active:opacity-60 transition-colors"
           onClick={generateRoom}
         >
           Generate
@@ -59,7 +59,7 @@ export default function Clipboard() {
         <button
           data-tooltip-target="tooltip-url-shortener"
           data-copy-to-clipboard-target="url-shortener"
-          class="flex-shrink-0 z-10 inline-flex items-center py-3 px-4 text-sm font-medium text-center text-mocha-mauve bg-mocha-surface0 border border-mocha-overlay0 rounded-e hover:bg-mocha-surface1"
+          class="flex-shrink-0 z-10 inline-flex items-center py-3 px-4 text-sm font-medium text-center text-mocha-text bg-mocha-surface0 border border-mocha-overlay0 rounded-e hover:opacity-80"
           type="button"
           onClick={copyToClipboard}
         >
