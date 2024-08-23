@@ -2,7 +2,7 @@
 // This file SHOULD be checked into source version control.
 // This file is automatically updated during development when running `dev.ts`.
 
-import * as $_room_ from "./routes/[room].tsx";
+import * as $_id_ from "./routes/[id].tsx";
 import * as $_404 from "./routes/_404.tsx";
 import * as $_app from "./routes/_app.tsx";
 import * as $api_guess from "./routes/api/guess.ts";
@@ -14,13 +14,13 @@ import * as $api_supabase_textToImage from "./routes/api/supabase/textToImage.ts
 import * as $index from "./routes/index.tsx";
 import * as $Clipboard from "./islands/Clipboard.tsx";
 import * as $Game from "./islands/Game.tsx";
-import * as $Lobby from "./islands/Lobby.tsx";
+import * as $Room from "./islands/Room.tsx";
 import * as $Share from "./islands/Share.tsx";
 import { type Manifest } from "$fresh/server.ts";
 
 const manifest = {
   routes: {
-    "./routes/[room].tsx": $_room_,
+    "./routes/[id].tsx": $_id_,
     "./routes/_404.tsx": $_404,
     "./routes/_app.tsx": $_app,
     "./routes/api/guess.ts": $api_guess,
@@ -34,7 +34,7 @@ const manifest = {
   islands: {
     "./islands/Clipboard.tsx": $Clipboard,
     "./islands/Game.tsx": $Game,
-    "./islands/Lobby.tsx": $Lobby,
+    "./islands/Room.tsx": $Room,
     "./islands/Share.tsx": $Share,
   },
   baseUrl: import.meta.url,

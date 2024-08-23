@@ -2,7 +2,7 @@ import Clipboard from "../islands/Clipboard.tsx";
 
 export default function Home() {
   return (
-    <div class="flex flex-col size-full p-16 items-center justify-center">
+    <div class="flex flex-col size-full p-8 items-center justify-center">
       <div class="flex w-full px-4 justify-between">
         <svg
           xmlns="http://www.w3.org/2000/svg"

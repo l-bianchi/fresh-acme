@@ -1,6 +1,8 @@
 import { useEffect, useState } from "preact/hooks";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.43.4";
-import { UserCard } from "../components/UserCard.tsx";
+import { User } from "../components/User.tsx";
+import { Message } from "../components/Message.tsx";
+import Game from "./Game.tsx";
 import {
   addUser,
   removeUser,
@@ -9,33 +11,50 @@ import {
   state,
 } from "../stores/game.ts";
 
-interface LobbyProps {
+interface RoomProps {
+  id: string;
   url: string;
   anon: string;
-  room: string;
 }
 
-export default function Lobby({ url, anon, room }: LobbyProps) {
-  const [user, _setUser] = useState(crypto.randomUUID());
+const colors = [
+  "#f5c2e7",
+  "#cba6f7",
+  "#f9e2af",
+  "#a6e3a1",
+  "#f2cdcd",
+  "#74c7ec",
+  "#fab387",
+  "#eba0ac",
+  "#f5e0dc",
+  "#b4befe",
+  "#89dceb",
+  "#94e2d5",
+  "#f38ba8",
+  "#89b4fa",
+];
+
+export default function Room({ id, url, anon }: RoomProps) {
+  const [user, _setUser] = useState({
+    id: crypto.randomUUID(),
+    username: "Pippo",
+    color: colors[Math.floor(Math.random() * colors.length)],
+  });
   const [message, setMessage] = useState<string>("");
   const [messages, setMessages] = useState<
-    { user: string; message: string; type: "guess" | "winner" }[]
+    {
+      user: { id: string; username: string; color: string };
+      message: string;
+      type: "guess" | "winner";
+    }[]
   >([]);
-  const { gameStarted, time, users } = state();
-
-  const borderDict = {
-    guess: "border-mocha-yellow",
-    winner: "border-mocha-green",
-  };
+  const { users, time } = state();
 
   function joinRoom() {
     const supabase = createClient(url, anon);
-    const channel = supabase.channel(room);
+    const channel = supabase.channel(id);
 
-    const userStatus = {
-      user,
-      online_at: new Date().toISOString(),
-    };
+    const userStatus = { user, online_at: new Date().toISOString() };
 
     channel.subscribe(async (status) => {
       if (status !== "SUBSCRIBED") {
@@ -58,7 +77,7 @@ export default function Lobby({ url, anon, room }: LobbyProps) {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ room, message, user }),
+      body: JSON.stringify({ room: id, message, user }),
     });
     if (!response.ok) {
       throw new Error("Network response was not ok");
@@ -70,7 +89,7 @@ export default function Lobby({ url, anon, room }: LobbyProps) {
     joinRoom();
 
     const client = createClient(url, anon);
-    const channel = client.channel(room);
+    const channel = client.channel(id);
 
     channel
       .on("presence", { event: "join" }, ({ key, newPresences }) => {
@@ -117,48 +136,36 @@ export default function Lobby({ url, anon, room }: LobbyProps) {
   }, []);
 
   return (
-    <div class="size-full">
-      {gameStarted
-        ? (
-          <div class="flex flex-col size-full gap-2">
-            <div class="w-full font-bold text-mocha-text bg-mocha-base p-4 rounded focus:outline-none">
-              Timer: {time}
-            </div>
-            <div class="flex size-full flex-col bg-mocha-base p-2 gap-2 overflow-y-auto">
-              {messages.map(({ user, message, type }) => (
-                <div
-                  class={`flex p-4 w-full max-w-full h-fit items-center justify-start border-2 rounded bg-mocha-mantle gap-2
-                    ${borderDict[type]}`}
-                >
-                  <img
-                    src={`https://deno-avatar.deno.dev/avatar/${user}.svg`}
-                    alt="user avatar"
-                    class="size-5 min-w-5 rounded-full"
-                  />
-                  <p class="leading-relaxed font-semibold text-mocha-text break-all line-clamp-1">
-                    {message}
-                  </p>
-                </div>
-              ))}
-            </div>
-            <input
-              class="w-full font-semibold text-mocha-text bg-mocha-base p-4 rounded focus:outline-none"
-              placeholder="Guess the word..."
-              value={message}
-              onInput={handleChange}
-              onKeyDown={(event) => {
-                if (event.key === "Enter" && message !== "") {
-                  guess();
-                }
-              }}
-            />
+    <div class="flex size-full gap-8 p-8">
+      <div class="flex flex-col w-1/5 p-4 rounded bg-mocha-base gap-4 shadow-lg shadow-mocha-base overflow-y-auto">
+        {users.map((user) => <User user={user} />)}
+      </div>
+      <div class="w-3/5 p-8 rounded bg-mocha-base shadow-lg shadow-mocha-base">
+        <div class="w-full font-bold text-mocha-text bg-mocha-base p-4 rounded focus:outline-none">
+          Timer: {time}
+        </div>
+        <Game room={id} />
+      </div>
+      <div class="w-1/5 p-4 rounded bg-mocha-base shadow-lg shadow-mocha-base">
+        <div class="flex flex-col size-full gap-2">
+          <div class="flex size-full flex-col bg-mocha-surface0 p-2 gap-0.5 rounded overflow-y-auto">
+            {messages.map(({ user, message, type }) => (
+              <Message user={user} message={message} type={type} />
+            ))}
           </div>
-        )
-        : (
-          <div class="text-mocha-text">
-            {users.map((user) => <UserCard user={user} />)}
-          </div>
-        )}
+          <input
+            class="w-full font-semibold text-mocha-text bg-mocha-surface0 p-4 rounded focus:outline-none"
+            placeholder="..."
+            value={message}
+            onInput={handleChange}
+            onKeyDown={(event) => {
+              if (event.key === "Enter" && message !== "") {
+                guess();
+              }
+            }}
+          />
+        </div>
+      </div>
     </div>
   );
 }
