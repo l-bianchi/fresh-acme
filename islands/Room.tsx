@@ -2,6 +2,7 @@ import { useEffect, useState } from "preact/hooks";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.43.4";
 import { User } from "../components/User.tsx";
 import { Message } from "../components/Message.tsx";
+import { Timer } from "../components/Timer.tsx";
 import Game from "./Game.tsx";
 import {
   addUser,
@@ -141,9 +142,7 @@ export default function Room({ id, url, anon }: RoomProps) {
         {users.map((user) => <User user={user} />)}
       </div>
       <div class="w-3/5 p-8 rounded bg-mocha-base shadow-lg shadow-mocha-base">
-        <div class="w-full font-bold text-mocha-text bg-mocha-base p-4 rounded focus:outline-none">
-          Timer: {time}
-        </div>
+        <Timer time={time} />
         <Game room={id} />
       </div>
       <div class="w-1/5 p-4 rounded bg-mocha-base shadow-lg shadow-mocha-base">

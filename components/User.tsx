@@ -12,7 +12,7 @@ export function User({ user: { id, username, color } }: UserProps) {
       />
       <p
         class={`text-xl font-semibold text-[${color}]`}
-        style={`color:${color}`}
+        style={{ color }}
       >
         {username}
       </p>

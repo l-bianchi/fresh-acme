@@ -17,7 +17,7 @@ export function Message(
     )
     : (
       <div class="flex items-center">
-        <span class="font-semibold" style={`color:${color}`}>
+        <span class="font-semibold" style={{ color }}>
           {username}:
         </span>
         <span class="text-mocha-text ml-2 break-all line-clamp-1">
