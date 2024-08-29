@@ -28,11 +28,16 @@ export default {
           "0%": { transform: "translateX(0)" },
           "100%": { transform: "translateX(100%)" },
         },
+        colorChange: {
+          "0%, 100%": { color: "#89b4fa" },
+          "50%": { color: "#a6e3a1" },
+        },
       },
       animation: {
         rotate: "spin 3s linear infinite",
         wiggle: "wiggle 1s ease-in-out infinite",
         move: "move 5s linear infinite",
+        loader: "spin 1s linear infinite, colorChange 4s ease-in-out infinite",
       },
     },
   },

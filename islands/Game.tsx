@@ -1,13 +1,15 @@
 import { useEffect, useState } from "preact/hooks";
 import Share from "./Share.tsx";
 import { Button } from "../components/Button.tsx";
+import { Timer } from "../components/Timer.tsx";
 import { state } from "../stores/game.ts";
 
 interface GameProps {
   room: string;
+  host: boolean;
 }
 
-export default function Game({ room }: GameProps) {
+export default function Game({ room, host }: GameProps) {
   const [imageUrl, setImageUrl] = useState<string>("");
   const { gameStarted, time, users } = state();
 
@@ -24,6 +26,14 @@ export default function Game({ room }: GameProps) {
   }, [time]);
 
   async function startGame() {
+    await fetch("/api/sendMessage", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ room, event: "loading" }),
+    });
+
     const response = await fetch("/api/supabase/textToImage", {
       method: "POST",
       headers: {
@@ -69,10 +79,11 @@ export default function Game({ room }: GameProps) {
   }
 
   return (
-    <div class="size-full">
+    <div class="size-full p-4">
       {gameStarted
         ? (
-          <div class="flex size-full items-center justify-center">
+          <div class="flex flex-col size-full gap-4 items-center justify-center">
+            <Timer time={time} />
             <img
               class="size-full rounded aspect-square"
               src={imageUrl}
@@ -81,9 +92,9 @@ export default function Game({ room }: GameProps) {
           </div>
         )
         : (
-          <div class="flex flex-col gap-4 items-center justify-center">
+          <div class="flex flex-col size-full gap-4 items-center justify-center">
             <Share room={room} />
-            <Button onClick={startGame}>Start</Button>
+            {host && <Button onClick={startGame}>Start</Button>}
           </div>
         )}
     </div>

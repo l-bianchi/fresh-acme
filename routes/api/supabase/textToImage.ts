@@ -33,6 +33,7 @@ export const handler: Handlers = {
         body: JSON.stringify({
           prompt,
           path: room,
+          word: data[0].prompt,
         }),
       });
 

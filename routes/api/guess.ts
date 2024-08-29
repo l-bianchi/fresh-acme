@@ -31,7 +31,7 @@ export const handler: Handlers = {
           channel.send({
             type: "broadcast",
             event: "winner",
-            payload: { room, message, user },
+            payload: { room, user },
           });
         } else {
           channel.send({

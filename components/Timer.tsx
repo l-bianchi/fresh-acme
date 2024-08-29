@@ -16,10 +16,9 @@ export function Timer({ time }: TimerProps) {
   return (
     <div class="flex flex-row-reverse w-full bg-mocha-surface0 rounded-full h-2.5">
       <div
-        class="bg-gradient-to-r h-2.5 rounded-full transition ease-linear"
+        class="bg-gradient-to-r h-2.5 rounded-full duration-150 ease-in-out"
         style={{ width: `${progress}%` }}
-      >
-      </div>
+      />
     </div>
   );
 }

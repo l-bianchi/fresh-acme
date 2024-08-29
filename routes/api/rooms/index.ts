@@ -23,13 +23,15 @@ export const handler: Handlers = {
       }
 
       const updateResult = async (user: string, time: number) => {
-        await supabase
-          .from("rooms")
-          .update({
-            results: {
-              [user]: time,
-            },
-          })
+        const { data } = await supabase.from("rooms").select().eq("id", id);
+        const results = data ? data[0].results : {};
+
+        await supabase.from("rooms").update({
+          results: {
+            ...results,
+            [user]: time,
+          },
+        })
           .eq("id", id);
       };
 
@@ -49,11 +51,11 @@ export const handler: Handlers = {
         channel
           .on("broadcast", { event: "winner" }, ({ payload }) => {
             console.log("winner", payload.user, time);
-            updateResult(payload.user, time);
+            updateResult(payload.user.id, time);
           })
           .on("broadcast", { event: "start" }, () => {
             function timer(timeLeft: number) {
-              if (timeLeft > 0) {
+              if (timeLeft >= 0) {
                 channel.send({
                   type: "broadcast",
                   event: "timer",

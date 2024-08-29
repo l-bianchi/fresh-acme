@@ -2,7 +2,7 @@ import { useEffect, useState } from "preact/hooks";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.43.4";
 import { User } from "../components/User.tsx";
 import { Message } from "../components/Message.tsx";
-import { Timer } from "../components/Timer.tsx";
+import { Loader } from "../components/Loader.tsx";
 import Game from "./Game.tsx";
 import {
   addUser,
@@ -36,6 +36,8 @@ const colors = [
 ];
 
 export default function Room({ id, url, anon }: RoomProps) {
+  const [loading, setLoading] = useState<boolean>(false);
+  const [gameEnded, setGameEnded] = useState<boolean>(false);
   const [user, _setUser] = useState({
     id: crypto.randomUUID(),
     username: "Pippo",
@@ -49,7 +51,8 @@ export default function Room({ id, url, anon }: RoomProps) {
       type: "guess" | "winner";
     }[]
   >([]);
-  const { users, time } = state();
+  const [results, setResults] = useState<string[]>([]);
+  const { users } = state();
 
   function joinRoom() {
     const supabase = createClient(url, anon);
@@ -86,8 +89,30 @@ export default function Room({ id, url, anon }: RoomProps) {
     setMessage("");
   }
 
+  async function getScore() {
+    const response = await fetch(`/api/rooms/${id}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    if (!response.ok) {
+      throw new Error("Network response was not ok");
+    }
+
+    const { results }: { results: Record<string, number> } = await response
+      .json();
+
+    const sortedResults = Object.keys(results).sort((a, b) =>
+      results[b] - results[a]
+    );
+    setResults(sortedResults);
+    setGameEnded(true);
+  }
+
   useEffect(() => {
     joinRoom();
+    getScore();
 
     const client = createClient(url, anon);
     const channel = client.channel(id);
@@ -103,8 +128,13 @@ export default function Room({ id, url, anon }: RoomProps) {
         console.log("leave", key, leftPresences);
         removeUser(leftPresences[0].user);
       })
+      .on("broadcast", { event: "loading" }, () => {
+        console.log("loading");
+        setLoading(true);
+      })
       .on("broadcast", { event: "start" }, () => {
         console.log("start");
+        setLoading(false);
         setGameStarted(true);
       })
       .on("broadcast", { event: "timer" }, ({ payload }) => {
@@ -125,9 +155,9 @@ export default function Room({ id, url, anon }: RoomProps) {
           { user: payload.user, message: "Indovinato", type: "winner" },
         ]);
       })
-      .on("broadcast", { event: "end" }, () => {
-        setGameStarted(false);
+      .on("broadcast", { event: "end" }, async () => {
         console.log("Game stopped");
+        await getScore();
       })
       .subscribe();
 
@@ -141,10 +171,44 @@ export default function Room({ id, url, anon }: RoomProps) {
       <div class="flex flex-col w-1/5 p-4 rounded bg-mocha-base gap-4 shadow-lg shadow-mocha-base overflow-y-auto">
         {users.map((user) => <User user={user} />)}
       </div>
-      <div class="w-3/5 p-8 rounded bg-mocha-base shadow-lg shadow-mocha-base">
-        <Timer time={time} />
-        <Game room={id} />
-      </div>
+      {gameEnded
+        ? (
+          <div class="grid grid-cols-3 grid-rows-3 w-3/5 p-8 rounded bg-mocha-base shadow-lg shadow-mocha-base">
+            <span class="row-start-3 col-span-3 bg-mocha-surface0 rounded" />
+            <span class="col-start-2 row-start-2 bg-mocha-surface0 rounded-t" />
+            <span class="flex col-start-3 row-start-2 items-center justify-center">
+              <img
+                src={`https://deno-avatar.deno.dev/avatar/${results[2]}.svg`}
+                alt="user avatar"
+                class="size-20 rounded-full"
+              />
+            </span>
+            <span class="flex col-start-1 row-start-2 items-center justify-center">
+              <img
+                src={`https://deno-avatar.deno.dev/avatar/${results[1]}.svg`}
+                alt="user avatar"
+                class="size-20 rounded-full"
+              />
+            </span>
+            <span class="flex col-start-2 row-start-1 items-center justify-center">
+              <img
+                src={`https://deno-avatar.deno.dev/avatar/${results[0]}.svg`}
+                alt="user avatar"
+                class="size-20 rounded-full"
+              />
+            </span>
+          </div>
+        )
+        : (
+          <div class="w-3/5 p-8 rounded bg-mocha-base shadow-lg shadow-mocha-base">
+            {loading ? <Loader /> : (
+              <Game
+                room={id}
+                host={users.length > 0 && users[0].id === user.id}
+              />
+            )}
+          </div>
+        )}
       <div class="w-1/5 p-4 rounded bg-mocha-base shadow-lg shadow-mocha-base">
         <div class="flex flex-col size-full gap-2">
           <div class="flex size-full flex-col bg-mocha-surface0 p-2 gap-0.5 rounded overflow-y-auto">
