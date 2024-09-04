@@ -14,8 +14,8 @@ export default function Game({ room, host }: GameProps) {
   const { gameStarted, time, users } = state();
 
   useEffect(() => {
-    async function getImage() {
-      setImageUrl(await getSignedUrl());
+    function getImage() {
+      setImageUrl(`/api/images/${room}?time=${time}`);
     }
 
     getImage();
@@ -61,21 +61,7 @@ export default function Game({ room, host }: GameProps) {
       body: JSON.stringify({ room, event: "start" }),
     });
 
-    setImageUrl(await getSignedUrl());
-  }
-
-  async function getSignedUrl() {
-    const response = await fetch("/api/supabase/blurImage", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ room, time }),
-    });
-    if (!response.ok) {
-      throw new Error("Network response was not ok");
-    }
-    return await response.json();
+    setImageUrl(`/api/images/${room}?time=${time}`);
   }
 
   return (

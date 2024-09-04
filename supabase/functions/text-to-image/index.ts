@@ -1,7 +1,7 @@
 import "https://esm.sh/v135/@supabase/functions-js@2.4.1/src/edge-runtime.d.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { HfInference } from "https://esm.sh/@huggingface/inference@2.3.2";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.43.4";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.44.2";
 
 const hf = new HfInference(Deno.env.get("HUGGING_FACE_ACCESS_TOKEN"));
 

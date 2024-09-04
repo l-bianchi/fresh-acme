@@ -1,5 +1,5 @@
 import { FreshContext, Handlers } from "$fresh/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.43.4";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.44.2";
 
 export const handler: Handlers = {
   async POST(_req: Request, _ctx: FreshContext): Promise<Response> {

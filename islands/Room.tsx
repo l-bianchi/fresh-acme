@@ -1,5 +1,5 @@
 import { useEffect, useState } from "preact/hooks";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.43.4";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.44.2";
 import { User } from "../components/User.tsx";
 import { Message } from "../components/Message.tsx";
 import { Loader } from "../components/Loader.tsx";
@@ -112,7 +112,6 @@ export default function Room({ id, url, anon }: RoomProps) {
 
   useEffect(() => {
     joinRoom();
-    getScore();
 
     const client = createClient(url, anon);
     const channel = client.channel(id);
